@@ -259,7 +259,6 @@ function createWindow() {
           mainWindow.webContents.send('keydown', { action: 'IMPORT_FILE' });
         }
       },
-      { type: 'separator' },
       {
         label: 'Export all environments to a file (JSON)',
         accelerator: 'CmdOrCtrl+O',
