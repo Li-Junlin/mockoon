@@ -8,6 +8,7 @@ import { Messages } from 'src/app/enums/messages.enum';
 import { DataService } from 'src/app/services/data.service';
 import { EventsService } from 'src/app/services/events.service';
 import { MigrationService } from 'src/app/services/migration.service';
+import { OpenAPIConverterService } from 'src/app/services/openapi-converter.service';
 import { SchemasBuilderService } from 'src/app/services/schemas-builder.service';
 import { ToastsService } from 'src/app/services/toasts.service';
 import { addEnvironmentAction, addRouteAction } from 'src/app/stores/actions';
@@ -36,7 +37,8 @@ export class ImportExportService {
     private eventsService: EventsService,
     private dataService: DataService,
     private migrationService: MigrationService,
-    private schemasBuilderService: SchemasBuilderService
+    private schemasBuilderService: SchemasBuilderService,
+    private openAPIConverterService: OpenAPIConverterService
   ) {}
 
   /**
@@ -175,6 +177,28 @@ export class ImportExportService {
     } catch (error) {
       this.toastService.addToast('error', Errors.IMPORT_CLIPBOARD_ERROR);
     }
+  }
+
+  /**
+   * Import an OpenAPI (v2/v3) file in Mockoon's format.
+   * Append imported envs to the env array.
+   */
+  public async importOpenAPIFile() {
+    const dialogResult = await this.dialog.showOpenDialog(this.BrowserWindow.getFocusedWindow(), { filters: [{ name: 'OpenAPI v2/v3', extensions: ['yaml', 'json'] }] });
+
+    if (dialogResult.filePaths && dialogResult.filePaths[0]) {
+      const environment = await this.openAPIConverterService.import(dialogResult.filePaths[0], this.dataService.getNewEnvironmentPort());
+
+      console.log(environment)
+      this.store.update(addEnvironmentAction(environment));
+    }
+  }
+
+  /**
+   * Export all environments to an OpenAPI v3 file
+   */
+  public exportOpenAPIFile() {
+    // WIP
   }
 
   /**

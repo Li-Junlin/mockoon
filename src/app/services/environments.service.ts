@@ -7,7 +7,6 @@ import { AnalyticsEvents } from 'src/app/enums/analytics-events.enum';
 import { DataService } from 'src/app/services/data.service';
 import { EventsService } from 'src/app/services/events.service';
 import { MigrationService } from 'src/app/services/migration.service';
-import { OpenAPIConverterService } from 'src/app/services/openapi-converter.service';
 import { SchemasBuilderService } from 'src/app/services/schemas-builder.service';
 import { ServerService } from 'src/app/services/server.service';
 import { addEnvironmentAction, addRouteAction, addRouteResponseAction, moveEnvironmentsAction, moveRouteResponsesAction, moveRoutesAction, navigateEnvironmentsAction, navigateRoutesAction, removeEnvironmentAction, removeRouteAction, removeRouteResponseAction, setActiveEnvironmentAction, setActiveEnvironmentLogTabAction, setActiveRouteAction, setActiveRouteResponseAction, setActiveTabAction, setActiveViewAction, setInitialEnvironmentsAction, updateEnvironmentAction, updateRouteAction, updateRouteResponseAction } from 'src/app/stores/actions';
@@ -27,8 +26,7 @@ export class EnvironmentsService {
     private store: Store,
     private serverService: ServerService,
     private migrationService: MigrationService,
-    private schemasBuilderService: SchemasBuilderService,
-    private openapiConverterService: OpenAPIConverterService
+    private schemasBuilderService: SchemasBuilderService
   ) {
     // get existing environments from storage or default one
     storage.get(this.storageKey, (_error: any, environments: Environment[]) => {
@@ -339,27 +337,5 @@ export class EnvironmentsService {
 
       this.eventsService.analyticsEvents.next(AnalyticsEvents.CREATE_ROUTE_FROM_LOG);
     }
-  }
-
-  /**
-   * Import an OpenAPI (v2/v3) file in Mockoon's format.
-   * Append imported envs to the env array.
-   */
-  public async importOpenAPIFile() {
-    const dialogResult = await this.dialog.showOpenDialog(this.BrowserWindow.getFocusedWindow(), { filters: [{ name: 'OpenAPI v2/v3', extensions: ['yaml', 'json'] }] });
-
-    if (dialogResult.filePaths && dialogResult.filePaths[0]) {
-      const environment = await this.openapiConverterService.import(dialogResult.filePaths[0], this.getNewEnvironmentPort());
-
-      console.log(environment)
-      this.store.update(addEnvironmentAction(environment));
-    }
-  }
-
-  /**
-   * Export all environments to an OpenAPI v3 file
-   */
-  public exportOpenAPIFile() {
-
   }
 }
